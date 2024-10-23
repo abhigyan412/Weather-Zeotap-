@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+</head>
+<body>
+    <h1>Weather Dashboard</h1>
+
+    <!-- Latest Weather for each city -->
+    <h2>Latest Weather</h2>
+    <ul>
+        {% if all_latest_weather %}
+            {% for weather in all_latest_weather %}
+                <li>
+                    <strong>City:</strong> {{ weather.city }}<br>
+                    <strong>Temperature:</strong> {{ weather.temperature }}°C<br>
+                    <strong>Feels Like:</strong> {{ weather.feels_like }}°C<br>
+                    <strong>Condition:</strong> {{ weather.main_condition }}<br>
+                    <strong>Timestamp:</strong> {{ weather.timestamp }}
+                </li>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>No weather data available.</p>
+        {% endif %}
+    </ul>
+
+    <!-- Daily Summary for each city -->
+    <h2>Daily Weather Summaries</h2>
+    <ul>
+        {% if daily_summaries %}
+            {% for summary in daily_summaries %}
+                <li>
+                    <strong>City:</strong> {{ summary.city }}<br>
+                    <strong>Average Temperature:</strong> {{ summary.avg_temp }}°C<br>
+                    <strong>Maximum Temperature:</strong> {{ summary.max_temp }}°C<br>
+                    <strong>Minimum Temperature:</strong> {{ summary.min_temp }}°C<br>
+                    <strong>Date:</strong> {{ summary.date }}<br> 
+                    <strong>Dominant Condition:</strong> {{ summary.dominant_condition }}
+                </li>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <p>No daily summaries available.</p>
+        {% endif %}
+    </ul>
+
+    <!-- Alerts -->
+    <h2>Weather Alerts</h2>
+    <ul>
+        {% if alerts %}
+            {% for alert in alerts %}
+                <li>{{ alert }}</li>
+            {% endfor %}
+        {% else %}
+            <p>No alerts at this time.</p>
+        {% endif %}
+    </ul>
+    
+</body>
+</html>

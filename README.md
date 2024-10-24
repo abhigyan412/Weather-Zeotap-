@@ -68,8 +68,7 @@ This Weather Monitoring System is a Django-based application that fetches real-t
 ## Configuration
 - Set your OpenWeatherMap API key in the utils.py file:
 - Configure cities in the CITIES list within utils.py.
-
--Customize the default temperature alert threshold by modifying the DEFAULT_ALERT_THRESHOLD variable
+- Customize the default temperature alert threshold by modifying the DEFAULT_ALERT_THRESHOLD variable
 
  ```bash
 API_KEY = 'your_openweathermap_api_key'

@@ -2,15 +2,13 @@ from django.db import models
 from django.utils import timezone
 
 class Weather(models.Model):
-    """Model to store weather data for a city."""
     city = models.CharField(max_length=100)
     temperature = models.FloatField()
     feels_like = models.FloatField()
+    humidity = models.FloatField(default=0.0)  # New field for humidity
+    wind_speed = models.FloatField(default=0.0)  # New field for wind speed
     main_condition = models.CharField(max_length=100)
-    timestamp = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"Weather in {self.city} at {self.timestamp}: {self.temperature}°C, {self.main_condition}"
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class AlertConfig(models.Model):

@@ -34,11 +34,13 @@
             {% for summary in daily_summaries %}
                 <li>
                     <strong>City:</strong> {{ summary.city }}<br>
-                    <strong>Average Temperature:</strong> {{ summary.avg_temp }}°C<br>
-                    <strong>Maximum Temperature:</strong> {{ summary.max_temp }}°C<br>
-                    <strong>Minimum Temperature:</strong> {{ summary.min_temp }}°C<br>
-                    <strong>Date:</strong> {{ summary.date }}<br> 
-                    <strong>Dominant Condition:</strong> {{ summary.dominant_condition }}
+                <strong>Date:</strong> {{ summary.date }}<br>
+                <strong>Average Temperature:</strong> {{ summary.avg_temp }}°C<br>
+                <strong>Maximum Temperature:</strong> {{ summary.max_temp }}°C<br>
+                <strong>Minimum Temperature:</strong> {{ summary.min_temp }}°C<br>
+                <strong>Average Humidity:</strong> {{ summary.avg_humidity }}%<br>  <!-- Display average humidity -->
+                <strong>Average Wind Speed:</strong> {{ summary.avg_wind_speed }} m/s<br>  <!-- Display average wind speed -->
+                <strong>Dominant Condition:</strong> {{ summary.dominant_condition }}
                 </li>
                 <hr>
             {% endfor %}

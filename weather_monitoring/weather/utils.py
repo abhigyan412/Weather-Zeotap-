@@ -28,11 +28,13 @@ def save_weather_data(city, data):
         city=city,
         temperature=data['main']['temp'],
         feels_like=data['main']['feels_like'],
+        humidity=data['main']['humidity'],  # New field
+        wind_speed=data['wind']['speed'],    # New field
         main_condition=data['weather'][0]['main'],
         timestamp=timezone.now()  # Ensure the timestamp is recorded
     )
     weather.save()
-    print(f"Saved weather data for {city}: {weather.temperature}°C, {weather.main_condition}")
+    print(f"Saved weather data for {city}: {weather.temperature}°C, {weather.main_condition}, Humidity: {weather.humidity}%, Wind Speed: {weather.wind_speed} m/s")
 
 def get_weather_data():
     """Continuously fetch weather data for configured cities at intervals."""
@@ -58,6 +60,8 @@ def calculate_daily_summary():
                 avg_temp=Avg('temperature'),
                 max_temp=Max('temperature'),
                 min_temp=Min('temperature'),
+                avg_humidity=Avg('humidity'),        # New aggregate for humidity
+                avg_wind_speed=Avg('wind_speed'),    # New aggregate for wind speed
             )
             
             # Get the dominant weather condition
@@ -67,17 +71,19 @@ def calculate_daily_summary():
             
             dominant_condition_name = dominant_condition['main_condition'] if dominant_condition else 'N/A'
             
+            # Append the city summary with date
             summaries.append({
                 'city': city,
+                'date': today,  # Add the date
                 'avg_temp': summary['avg_temp'],
                 'max_temp': summary['max_temp'],
                 'min_temp': summary['min_temp'],
+                'avg_humidity': summary['avg_humidity'],      # Include avg humidity
+                'avg_wind_speed': summary['avg_wind_speed'],  # Include avg wind speed
                 'dominant_condition': dominant_condition_name,
-                'date': today, 
-
             })
 
-    return summaries  # Return the summaries for all cities
+    return summaries
 
 def check_alerts():
     """Check if the temperature exceeds the threshold for two consecutive updates."""

@@ -7,10 +7,10 @@ import time
 from collections import Counter
 from .models import Weather, AlertConfig
 
-API_KEY = '388396445b31998b3bc4bc9d7ba1b17c'  # Replace with your OpenWeatherMap API key
+API_KEY = '388396445b31998b3bc4bc9d7ba1b17c'  
 CITIES = ['Delhi', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 'Hyderabad']  
-DEFAULT_ALERT_THRESHOLD = 35  # Default temperature alert threshold in Celsius
-FETCH_INTERVAL = 300  # Fetch weather data every 5 minutes (300 seconds)
+DEFAULT_ALERT_THRESHOLD = 35  
+FETCH_INTERVAL = 300  
 
 def fetch_weather(city):
     """Fetch the current weather data for a given city from OpenWeatherMap API."""
@@ -32,10 +32,10 @@ def save_weather_data(city, data):
     wind_speed = data['wind']['speed']
     main_condition = data['weather'][0]['main']
     
-    # Retrieve existing weather records for the city to find current min and max
+    
     current_weather = Weather.objects.filter(city=city).order_by('-timestamp').first()
 
-    # Initialize daily extremes
+    
     if current_weather:
         daily_max_temp = max(current_weather.daily_max_temp, temperature) if current_weather.daily_max_temp is not None else temperature
         daily_min_temp = min(current_weather.daily_min_temp, temperature) if current_weather.daily_min_temp is not None else temperature
@@ -51,7 +51,6 @@ def save_weather_data(city, data):
         daily_max_wind_speed = wind_speed
         daily_min_wind_speed = wind_speed
 
-    # Create a new Weather record
     weather = Weather(
         city=city,
         temperature=temperature,
@@ -81,7 +80,7 @@ def get_weather_data():
             data = fetch_weather(city)
             if data:
                 save_weather_data(city, data)
-        time.sleep(FETCH_INTERVAL)  # Wait for configured interval before fetching data again
+        time.sleep(FETCH_INTERVAL)  
 
 def calculate_daily_summary():
     """Calculate daily weather summaries for the current day."""
@@ -100,10 +99,10 @@ def calculate_daily_summary():
                 min_temp=Min('daily_min_temp'),
                 avg_humidity=Avg('humidity'),
                 avg_wind_speed=Avg('wind_speed'),
-                max_wind_speed=Max('daily_max_wind_speed'),  # New aggregate for max wind speed
-                min_wind_speed=Min('daily_min_wind_speed'),  # New aggregate for min wind speed
-                max_humidity=Max('daily_max_humidity'),      # New aggregate for max humidity
-                min_humidity=Min('daily_min_humidity'),      # New aggregate for min humidity
+                max_wind_speed=Max('daily_max_wind_speed'), 
+                min_wind_speed=Min('daily_min_wind_speed'),  
+                max_humidity=Max('daily_max_humidity'),     
+                min_humidity=Min('daily_min_humidity'),     
             )
 
             # Calculate average based on max and min temperatures
@@ -123,19 +122,19 @@ def calculate_daily_summary():
             else:
                 avg_humidity = summary['avg_humidity']
 
-            # Append the city summary with date
+         
             summaries.append({
                 'city': city,
                 'date': today,
                 'avg_temp': avg_temp,
                 'max_temp': summary['max_temp'],
                 'min_temp': summary['min_temp'],
-                'avg_humidity': avg_humidity,  # Include calculated average humidity
-                'avg_wind_speed': avg_wind_speed,  # Include calculated average wind speed
-                'max_wind_speed': summary['max_wind_speed'],  # Include max wind speed
-                'min_wind_speed': summary['min_wind_speed'],  # Include min wind speed
-                'max_humidity': summary['max_humidity'],      # Include max humidity
-                'min_humidity': summary['min_humidity'],      # Include min humidity
+                'avg_humidity': avg_humidity, 
+                'avg_wind_speed': avg_wind_speed,  
+                'max_wind_speed': summary['max_wind_speed'],  
+                'min_wind_speed': summary['min_wind_speed'],  
+                'max_humidity': summary['max_humidity'],      
+                'min_humidity': summary['min_humidity'],      
                 'dominant_condition': city_weather.values('main_condition').annotate(count=Count('main_condition')).order_by('-count').first()['main_condition'] if city_weather else 'N/A',
             })
 
@@ -144,7 +143,7 @@ def calculate_daily_summary():
 
 
 def check_alerts():
-    """Check if the temperature exceeds the threshold for two consecutive updates."""
+    
     alerts = []  # Store alerts
     for city in CITIES:
         last_two_weather = Weather.objects.filter(city=city).order_by('-timestamp')[:2]
@@ -167,10 +166,9 @@ def set_alert_threshold(city, threshold):
     print(f"Alert threshold set for {city}: {threshold}°C")
 
 def run_weather_monitoring():
-    """Utility function to summarize and check data at regular intervals."""
     while True:
         get_weather_data()  
-        daily_summaries = calculate_daily_summary()  # Save daily summaries for further use or logging
+        daily_summaries = calculate_daily_summary()  
         alerts = check_alerts()  
-        print(alerts)  # You might want to log this or handle it as needed
+        print(alerts) 
         time.sleep(FETCH_INTERVAL)  

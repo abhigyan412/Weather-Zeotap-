@@ -24,17 +24,55 @@ def fetch_weather(city):
 
 def save_weather_data(city, data):
     """Save fetched weather data into the Weather model."""
+    
+    # Get the current weather data
+    temperature = data['main']['temp']
+    feels_like = data['main']['feels_like']
+    humidity = data['main']['humidity']
+    wind_speed = data['wind']['speed']
+    main_condition = data['weather'][0]['main']
+    
+    # Retrieve existing weather records for the city to find current min and max
+    current_weather = Weather.objects.filter(city=city).order_by('-timestamp').first()
+
+    # Initialize daily extremes
+    if current_weather:
+        daily_max_temp = max(current_weather.daily_max_temp, temperature) if current_weather.daily_max_temp is not None else temperature
+        daily_min_temp = min(current_weather.daily_min_temp, temperature) if current_weather.daily_min_temp is not None else temperature
+        daily_max_humidity = max(current_weather.daily_max_humidity, humidity) if current_weather.daily_max_humidity is not None else humidity
+        daily_min_humidity = min(current_weather.daily_min_humidity, humidity) if current_weather.daily_min_humidity is not None else humidity
+        daily_max_wind_speed = max(current_weather.daily_max_wind_speed, wind_speed) if current_weather.daily_max_wind_speed is not None else wind_speed
+        daily_min_wind_speed = min(current_weather.daily_min_wind_speed, wind_speed) if current_weather.daily_min_wind_speed is not None else wind_speed
+    else:
+        daily_max_temp = temperature
+        daily_min_temp = temperature
+        daily_max_humidity = humidity
+        daily_min_humidity = humidity
+        daily_max_wind_speed = wind_speed
+        daily_min_wind_speed = wind_speed
+
+    # Create a new Weather record
     weather = Weather(
         city=city,
-        temperature=data['main']['temp'],
-        feels_like=data['main']['feels_like'],
-        humidity=data['main']['humidity'],  # New field
-        wind_speed=data['wind']['speed'],    # New field
-        main_condition=data['weather'][0]['main'],
-        timestamp=timezone.now()  # Ensure the timestamp is recorded
+        temperature=temperature,
+        feels_like=feels_like,
+        humidity=humidity,
+        wind_speed=wind_speed,
+        main_condition=main_condition,
+        timestamp=timezone.now(),
+        daily_max_temp=daily_max_temp,          # Store updated daily max temperature
+        daily_min_temp=daily_min_temp,          # Store updated daily min temperature
+        daily_max_humidity=daily_max_humidity,  # Store updated daily max humidity
+        daily_min_humidity=daily_min_humidity,  # Store updated daily min humidity
+        daily_max_wind_speed=daily_max_wind_speed,  # Store updated daily max wind speed
+        daily_min_wind_speed=daily_min_wind_speed   # Store updated daily min wind speed
     )
+    
     weather.save()
-    print(f"Saved weather data for {city}: {weather.temperature}°C, {weather.main_condition}, Humidity: {weather.humidity}%, Wind Speed: {weather.wind_speed} m/s")
+    print(f"Saved weather data for {city}: {weather.temperature}°C, {weather.main_condition}, "
+          f"Humidity: {weather.humidity}%, Wind Speed: {weather.wind_speed} m/s")
+
+
 
 def get_weather_data():
     """Continuously fetch weather data for configured cities at intervals."""
@@ -58,32 +96,52 @@ def calculate_daily_summary():
         if city_weather.exists():
             summary = city_weather.aggregate(
                 avg_temp=Avg('temperature'),
-                max_temp=Max('temperature'),
-                min_temp=Min('temperature'),
-                avg_humidity=Avg('humidity'),        # New aggregate for humidity
-                avg_wind_speed=Avg('wind_speed'),    # New aggregate for wind speed
+                max_temp=Max('daily_max_temp'),
+                min_temp=Min('daily_min_temp'),
+                avg_humidity=Avg('humidity'),
+                avg_wind_speed=Avg('wind_speed'),
+                max_wind_speed=Max('daily_max_wind_speed'),  # New aggregate for max wind speed
+                min_wind_speed=Min('daily_min_wind_speed'),  # New aggregate for min wind speed
+                max_humidity=Max('daily_max_humidity'),      # New aggregate for max humidity
+                min_humidity=Min('daily_min_humidity'),      # New aggregate for min humidity
             )
-            
-            # Get the dominant weather condition
-            dominant_condition = city_weather.values('main_condition').annotate(
-                count=Count('main_condition')
-            ).order_by('-count').first()
-            
-            dominant_condition_name = dominant_condition['main_condition'] if dominant_condition else 'N/A'
-            
+
+            # Calculate average based on max and min temperatures
+            if summary['max_temp'] is not None and summary['min_temp'] is not None:
+                avg_temp = (summary['max_temp'] + summary['min_temp']) / 2
+            else:
+                avg_temp = summary['avg_temp']
+
+            # Calculate average wind speed and humidity
+            if summary['max_wind_speed'] is not None and summary['min_wind_speed'] is not None:
+                avg_wind_speed = (summary['max_wind_speed'] + summary['min_wind_speed']) / 2
+            else:
+                avg_wind_speed = summary['avg_wind_speed']
+
+            if summary['max_humidity'] is not None and summary['min_humidity'] is not None:
+                avg_humidity = (summary['max_humidity'] + summary['min_humidity']) / 2
+            else:
+                avg_humidity = summary['avg_humidity']
+
             # Append the city summary with date
             summaries.append({
                 'city': city,
-                'date': today,  # Add the date
-                'avg_temp': summary['avg_temp'],
+                'date': today,
+                'avg_temp': avg_temp,
                 'max_temp': summary['max_temp'],
                 'min_temp': summary['min_temp'],
-                'avg_humidity': summary['avg_humidity'],      # Include avg humidity
-                'avg_wind_speed': summary['avg_wind_speed'],  # Include avg wind speed
-                'dominant_condition': dominant_condition_name,
+                'avg_humidity': avg_humidity,  # Include calculated average humidity
+                'avg_wind_speed': avg_wind_speed,  # Include calculated average wind speed
+                'max_wind_speed': summary['max_wind_speed'],  # Include max wind speed
+                'min_wind_speed': summary['min_wind_speed'],  # Include min wind speed
+                'max_humidity': summary['max_humidity'],      # Include max humidity
+                'min_humidity': summary['min_humidity'],      # Include min humidity
+                'dominant_condition': city_weather.values('main_condition').annotate(count=Count('main_condition')).order_by('-count').first()['main_condition'] if city_weather else 'N/A',
             })
 
     return summaries
+
+
 
 def check_alerts():
     """Check if the temperature exceeds the threshold for two consecutive updates."""

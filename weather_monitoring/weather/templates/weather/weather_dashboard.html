@@ -17,6 +17,8 @@
                     <strong>City:</strong> {{ weather.city }}<br>
                     <strong>Temperature:</strong> {{ weather.temperature }}°C<br>
                     <strong>Feels Like:</strong> {{ weather.feels_like }}°C<br>
+                    <strong>Humidity:</strong> {{ weather.humidity }}%<br>  <!-- Display humidity -->
+                    <strong>Wind Speed:</strong> {{ weather.wind_speed }} m/s<br>  <!-- Display wind speed -->
                     <strong>Condition:</strong> {{ weather.main_condition }}<br>
                     <strong>Timestamp:</strong> {{ weather.timestamp }}
                 </li>
@@ -34,13 +36,13 @@
             {% for summary in daily_summaries %}
                 <li>
                     <strong>City:</strong> {{ summary.city }}<br>
-                <strong>Date:</strong> {{ summary.date }}<br>
-                <strong>Average Temperature:</strong> {{ summary.avg_temp }}°C<br>
-                <strong>Maximum Temperature:</strong> {{ summary.max_temp }}°C<br>
-                <strong>Minimum Temperature:</strong> {{ summary.min_temp }}°C<br>
-                <strong>Average Humidity:</strong> {{ summary.avg_humidity }}%<br>  <!-- Display average humidity -->
-                <strong>Average Wind Speed:</strong> {{ summary.avg_wind_speed }} m/s<br>  <!-- Display average wind speed -->
-                <strong>Dominant Condition:</strong> {{ summary.dominant_condition }}
+                    <strong>Date:</strong> {{ summary.date }}<br>
+                    <strong>Average Temperature:</strong> {{ summary.avg_temp }}°C<br>
+                    <strong>Maximum Temperature:</strong> {{ summary.max_temp }}°C<br>
+                    <strong>Minimum Temperature:</strong> {{ summary.min_temp }}°C<br>
+                    <strong>Average Humidity:</strong> {{ summary.avg_humidity }}%<br>  <!-- Display average humidity -->
+                    <strong>Average Wind Speed:</strong> {{ summary.avg_wind_speed }} m/s<br>  <!-- Display average wind speed -->
+                    <strong>Dominant Condition:</strong> {{ summary.dominant_condition }}
                 </li>
                 <hr>
             {% endfor %}
@@ -63,3 +65,4 @@
     
 </body>
 </html>
+

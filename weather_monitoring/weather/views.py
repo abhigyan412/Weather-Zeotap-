@@ -1,4 +1,5 @@
 from django.shortcuts import render
+
 from .models import Weather
 from .utils import calculate_daily_summary, check_alerts
 from django.db.models import Max, Avg, Min  
@@ -22,3 +23,4 @@ def weather_dashboard(request):
         'daily_summaries': daily_summaries,  # Updated to pass the daily summaries
         'alerts': alerts
     })
+

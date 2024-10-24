@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Weather Dashboard</h1>
+    
+    <canvas id="temperatureChart" width="400" height="200"></canvas>
+    <canvas id="humidityChart" width="400" height="200"></canvas>
+    <canvas id="windSpeedChart" width="400" height="200"></canvas>
+    <div id="alerts"></div>
+    
+    <script>
+        async function fetchWeatherData() {
+            const response = await fetch('/weather/summary/');  // Update this path
+            const data = await response.json();
+            return data;
+        }
+
+        function renderCharts(data) {
+            const labels = data.summaries.map(item => item.city); // Assuming summaries include city names
+            
+            // Temperature Chart
+            const temperatureData = data.summaries.map(item => (item.max_temp + item.min_temp) / 2);
+            const tempChart = new Chart(document.getElementById('temperatureChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Temperature (°C)',
+                        data: temperatureData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Humidity Chart
+            const humidityData = data.summaries.map(item => item.avg_humidity);
+            const humidityChart = new Chart(document.getElementById('humidityChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Humidity (%)',
+                        data: humidityData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Wind Speed Chart
+            const windSpeedData = data.summaries.map(item => item.avg_wind_speed);
+            const windSpeedChart = new Chart(document.getElementById('windSpeedChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Wind Speed (m/s)',
+                        data: windSpeedData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Display Alerts
+            const alertsDiv = document.getElementById('alerts');
+            alertsDiv.innerHTML = '';
+            data.alerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.textContent = alert;
+                alertsDiv.appendChild(alertItem);
+            });
+        }
+
+        fetchWeatherData().then(renderCharts);
+    </script>
+</body>
+</html>

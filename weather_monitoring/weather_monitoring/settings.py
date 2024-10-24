@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-3)sy%lw(j$+9l1u(%5&6#zu@h94)zo5-jleoj^waj^*3f_0-il
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['weather-zeotap.onrender.com']
 
 
 # Application definition

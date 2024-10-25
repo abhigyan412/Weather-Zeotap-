@@ -50,7 +50,8 @@ This Weather Monitoring System is a Django-based application that fetches real-t
 6. **Run the application:**
 
    ```bash
-   python manage.py runserver
+  python manage.py run_weather_monitor
+  #http://127.0.0.1:8000/
 
 
 
